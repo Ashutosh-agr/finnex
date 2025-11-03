@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {useRouter} from "next/navigation"
 import {Avatar, AvatarFallback} from "@/components/ui/avatar"
 import {Button} from "./ui/button"
 import {LogOut} from "lucide-react"
@@ -20,8 +19,6 @@ export const UserDropdown = ({
 }: {
   user: {id: string; name: string; email: string} | undefined
 }) => {
-  const router = useRouter()
-
   // Debug: log user to see what's being passed
   console.log("UserDropdown user:", user)
 
@@ -33,17 +30,21 @@ export const UserDropdown = ({
         console.error("Sign out failed:", await res.text())
       }
 
-      // Clear client-side user state
+      // Clear ALL client-side state including watchlist cache
       try {
         localStorage.removeItem("user")
+        localStorage.removeItem("user_watchlist_cache")
+        localStorage.removeItem("user_watchlist_cache_expiry")
+        console.log("🧹 Cleared user data and watchlist cache")
       } catch {
         // ignore storage errors in SSR or restricted environments
       }
 
-      router.push("/sign-in")
+      // Use window.location for full page reload to clear all state
+      window.location.href = "/sign-in"
     } catch (err) {
       console.error("Sign out error:", err)
-      router.push("/sign-in")
+      window.location.href = "/sign-in"
     }
   }
 

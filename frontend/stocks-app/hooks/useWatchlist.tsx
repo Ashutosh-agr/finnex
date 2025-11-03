@@ -26,6 +26,7 @@ const WatchlistContext = createContext<WatchlistContextType | undefined>(
 
 const WATCHLIST_CACHE_KEY = "user_watchlist_cache"
 const WATCHLIST_CACHE_EXPIRY_KEY = "user_watchlist_cache_expiry"
+const CACHED_USER_ID_KEY = "cached_watchlist_user_id"
 
 export function WatchlistProvider({children}: {children: ReactNode}) {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([])
@@ -40,7 +41,26 @@ export function WatchlistProvider({children}: {children: ReactNode}) {
       const storedUser = localStorage.getItem("user")
       if (storedUser) {
         const user = JSON.parse(storedUser)
-        setUserId(user.id)
+        const newUserId = user.id
+
+        // Check if user has changed - if so, clear cache
+        const cachedUserId = localStorage.getItem(CACHED_USER_ID_KEY)
+        if (cachedUserId && cachedUserId !== newUserId) {
+          console.log("🔄 User changed, clearing watchlist cache")
+          localStorage.removeItem(WATCHLIST_CACHE_KEY)
+          localStorage.removeItem(WATCHLIST_CACHE_EXPIRY_KEY)
+        }
+
+        // Store current user ID
+        localStorage.setItem(CACHED_USER_ID_KEY, newUserId)
+        setUserId(newUserId)
+      } else {
+        // No user logged in - clear everything
+        setUserId(null)
+        setWatchlist([])
+        localStorage.removeItem(WATCHLIST_CACHE_KEY)
+        localStorage.removeItem(WATCHLIST_CACHE_EXPIRY_KEY)
+        localStorage.removeItem(CACHED_USER_ID_KEY)
       }
     } catch (error) {
       console.error("Error loading user from localStorage:", error)
@@ -214,4 +234,16 @@ export function useWatchlist() {
     throw new Error("useWatchlist must be used within a WatchlistProvider")
   }
   return context
+}
+
+// Utility function to clear watchlist cache (can be called during logout)
+export function clearWatchlistCache() {
+  try {
+    localStorage.removeItem(WATCHLIST_CACHE_KEY)
+    localStorage.removeItem(WATCHLIST_CACHE_EXPIRY_KEY)
+    localStorage.removeItem(CACHED_USER_ID_KEY)
+    console.log("🧹 Watchlist cache cleared")
+  } catch (error) {
+    console.error("Error clearing watchlist cache:", error)
+  }
 }

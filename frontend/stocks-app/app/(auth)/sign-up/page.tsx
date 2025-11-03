@@ -11,13 +11,10 @@ import {
   RISK_TOLERANCE_OPTIONS,
 } from "@/lib/constants"
 import React from "react"
-import {useRouter} from "next/navigation"
 import {useForm} from "react-hook-form"
 import {toast} from "sonner"
 
 const SignUp = () => {
-  const router = useRouter()
-
   const {
     register,
     handleSubmit,
@@ -48,9 +45,13 @@ const SignUp = () => {
       })
 
       if (result.ok) {
-        console.log("Sign Up Successful:", data)
-        toast.success("Account created successfully!")
-        router.push("/sign-in")
+        console.log("✅ Sign Up Successful:", data)
+        toast.success("Account created successfully! Redirecting to sign in...")
+
+        // Use window.location for hard redirect
+        setTimeout(() => {
+          window.location.href = "/sign-in"
+        }, 100)
       } else {
         const errorData = await result.json().catch(() => ({}))
         throw new Error(errorData.message || "Sign up failed")
