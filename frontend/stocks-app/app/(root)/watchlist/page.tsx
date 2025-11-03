@@ -133,12 +133,22 @@ export default function WatchlistPage() {
           <p className="text-gray-400 mb-6">
             Start tracking stocks by adding them to your watchlist
           </p>
-          <Link
-            href="/search"
+          <button
+            onClick={() => {
+              // Trigger the search command by pressing Ctrl+K
+              const event = new KeyboardEvent("keydown", {
+                key: "k",
+                code: "KeyK",
+                ctrlKey: true,
+                metaKey: true,
+                bubbles: true,
+              })
+              document.dispatchEvent(event)
+            }}
             className="inline-flex items-center justify-center px-6 yellow-btn"
           >
             Browse Stocks
-          </Link>
+          </button>
         </div>
       </div>
     )
