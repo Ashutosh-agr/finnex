@@ -37,7 +37,9 @@ const SignUp = () => {
   })
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      const result = await fetch("http://localhost:8080/auth/sign-up", {
+      const backendUrl =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080"
+      const result = await fetch(`${backendUrl}/auth/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,6 +51,9 @@ const SignUp = () => {
         console.log("Sign Up Successful:", data)
         toast.success("Account created successfully!")
         router.push("/sign-in")
+      } else {
+        const errorData = await result.json().catch(() => ({}))
+        throw new Error(errorData.message || "Sign up failed")
       }
     } catch (error) {
       console.error("Sign Up Error:", error)

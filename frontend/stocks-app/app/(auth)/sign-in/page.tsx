@@ -5,11 +5,9 @@ import InputFeild from "@/components/forms/InputFeild"
 import {Button} from "@/components/ui/button"
 import React, {useState, useEffect} from "react"
 import {useForm} from "react-hook-form"
-import {useRouter} from "next/navigation"
 import {toast} from "sonner"
 
 const SignIn = () => {
-  const router = useRouter()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -54,11 +52,14 @@ const SignIn = () => {
         localStorage.setItem("user", JSON.stringify(json.user))
       }
 
+      console.log("✅ Sign-in successful, preparing redirect...")
       toast.success("Signed In Successfully!")
-      console.log("🚀 Redirecting to homepage...")
-      // Redirect to homepage or protected area
-      router.push("/")
-      console.log("✅ Router.push called")
+
+      // Small delay to ensure cookie is set and toast is visible
+      setTimeout(() => {
+        console.log("🚀 Redirecting to homepage...")
+        window.location.href = "/"
+      }, 100)
     } catch (error) {
       console.error("💥 Sign In Error:", error)
       toast.error("An error occurred during sign-in.")

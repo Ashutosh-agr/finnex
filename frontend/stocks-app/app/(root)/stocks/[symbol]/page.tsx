@@ -1,3 +1,7 @@
+"use client"
+
+import {useEffect, useState} from "react"
+import {useWatchlist} from "@/hooks/useWatchlist"
 import TradingViewWidget from "@/components/TradingViewWidget"
 import WatchlistButton from "@/components/WatchlistButton"
 import {
@@ -9,42 +13,77 @@ import {
   COMPANY_FINANCIALS_WIDGET_CONFIG,
 } from "@/lib/constants"
 
-export default async function StockDetails({params}: StockDetailsPageProps) {
-  const {symbol} = await params
+export default function StockDetails({params}: StockDetailsPageProps) {
+  const [symbol, setSymbol] = useState<string>("")
+  const [companyName, setCompanyName] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
+  const {isInWatchlist} = useWatchlist()
+
   const scriptUrl = `https://s3.tradingview.com/external-embedding/embed-widget-`
 
-  // Fetch company name from backend
-  let companyName = symbol.toUpperCase()
-  let fetchError = null
-
-  try {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080"
-    const url = `${backendUrl}/api/stocks/profile?symbol=${symbol}`
-
-    const response = await fetch(url, {
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-      },
-    })
-
-    if (response.ok) {
-      const profileData = await response.json()
-      if (profileData && profileData.name) {
-        companyName = profileData.name
-      }
-    } else {
-      fetchError = `HTTP ${response.status}`
+  useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = await params
+      setSymbol(resolvedParams.symbol)
     }
-  } catch (error) {
-    fetchError = error instanceof Error ? error.message : "Unknown error"
-  }
+    getParams()
+  }, [params])
 
-  // Log to terminal (visible in npm run dev output)
-  if (fetchError) {
-    console.error(`[Stock ${symbol}] Failed to fetch profile: ${fetchError}`)
-  } else {
-    console.log(`[Stock ${symbol}] Company name: ${companyName}`)
+  // Fetch company name from backend
+  useEffect(() => {
+    if (!symbol) return
+
+    const fetchCompanyName = async () => {
+      setIsLoading(true)
+      let name = symbol.toUpperCase()
+      let fetchError = null
+
+      try {
+        const backendUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080"
+        const url = `${backendUrl}/api/stocks/profile?symbol=${symbol}`
+
+        const response = await fetch(url, {
+          cache: "no-store",
+          headers: {
+            Accept: "application/json",
+          },
+        })
+
+        if (response.ok) {
+          const profileData = await response.json()
+          if (profileData && profileData.name) {
+            name = profileData.name
+          }
+        } else {
+          fetchError = `HTTP ${response.status}`
+        }
+      } catch (error) {
+        fetchError = error instanceof Error ? error.message : "Unknown error"
+      }
+
+      // Log to terminal (visible in npm run dev output)
+      if (fetchError) {
+        console.error(
+          `[Stock ${symbol}] Failed to fetch profile: ${fetchError}`
+        )
+      } else {
+        console.log(`[Stock ${symbol}] Company name: ${name}`)
+      }
+
+      setCompanyName(name)
+      setIsLoading(false)
+    }
+
+    fetchCompanyName()
+  }, [symbol])
+
+  if (!symbol || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    )
   }
 
   return (
@@ -79,7 +118,7 @@ export default async function StockDetails({params}: StockDetailsPageProps) {
             <WatchlistButton
               symbol={symbol.toUpperCase()}
               company={companyName}
-              isInWatchlist={false}
+              isInWatchlist={isInWatchlist(symbol.toUpperCase())}
             />
           </div>
 

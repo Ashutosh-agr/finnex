@@ -23,6 +23,9 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value
 
   if (!token) {
+    console.log(
+      `[Middleware] No token found for ${pathname}, redirecting to sign-in`
+    )
     return NextResponse.redirect(new URL("/sign-in", req.url))
   }
 
@@ -31,7 +34,7 @@ export async function middleware(req: NextRequest) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || "")
 
     if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET not configured!")
+      console.error("[Middleware] JWT_SECRET not configured!")
       return NextResponse.redirect(new URL("/sign-in", req.url))
     }
 
@@ -39,6 +42,7 @@ export async function middleware(req: NextRequest) {
       algorithms: ["HS256"], // Match Spring backend algorithm
     })
 
+    console.log(`[Middleware] ✅ Token valid for ${pathname}`)
     // Token valid - expiration check is handled by jwtVerify automatically
     const response = NextResponse.next()
 
@@ -48,8 +52,12 @@ export async function middleware(req: NextRequest) {
     response.headers.set("X-XSS-Protection", "1; mode=block")
 
     return response
-  } catch {
+  } catch (err) {
     // Invalid/expired token - redirect to sign-in
+    console.log(
+      `[Middleware] ❌ Token invalid for ${pathname}:`,
+      err instanceof Error ? err.message : "Unknown error"
+    )
     return NextResponse.redirect(new URL("/sign-in", req.url))
   }
 }
