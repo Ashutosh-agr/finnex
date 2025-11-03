@@ -134,8 +134,8 @@ export default function WatchlistPage() {
             Start tracking stocks by adding them to your watchlist
           </p>
           <Link
-            href="/"
-            className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
+            href="/search"
+            className="inline-flex items-center justify-center px-6 yellow-btn"
           >
             Browse Stocks
           </Link>
