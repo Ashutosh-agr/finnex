@@ -4,29 +4,31 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI:}
-      database: ${MONGODB_DATABASE:stock_data}
-      auto-index-creation: ${MONGODB_AUTO_INDEX:true}
+      uri: "mongodb+srv://Ashutosh1503k:Ashutosh91639@cluster0.5c2av1i.mongodb.net/?appName=Cluster0"
+      database: stock_data
+      auto-index-creation: true
+
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    host: smtp.gmail.com
+    port: 587
+    username: ashutoshperso@gmail.com
+    password: unby glye titu hhhs
     properties:
       mail:
         smtp:
-          auth: ${MAIL_SMTP_AUTH:true}
+          auth: true
           starttls:
-            enable: ${MAIL_STARTTLS_ENABLE:true}
+            enable: true
+
 
 jwt:
-  secret: ${JWT_SECRET:}
-  expiration: ${JWT_EXPIRATION:3600000}
+  secret: "Rias_Akeno_DXD_jjk_sukuna_isekai_light_dark_knight_yagami_big_pom_pom_yu"
+  expiration: 3600000
 
 gemini:
-  apiKey: ${GEMINI_APIKEY:}
-  model: ${GEMINI_MODEL:gemini-2.5-flash}
+  apiKey: AIzaSyAyz9IZLtXDHiLsljAmXlr29z7bE6BqocU
+  model: "gemini-2.5-flash"
 
 finnhub:
-  apiKey: ${FINNHUB_APIKEY:}
+  apiKey: d42f6shr01qorler3e90d42f6shr01qorler3e9g
